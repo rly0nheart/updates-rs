@@ -77,7 +77,7 @@ fn main() {
 }
 ```
 
-## Caching
+## Caching Behaviour
 
 Update checks are cached in your system's temp directory for 1 hour:
 

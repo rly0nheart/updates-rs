@@ -452,7 +452,7 @@ pub(crate) fn parse_version(s: &str) -> Vec<String> {
     for part in component_re.find_iter(&s_lower) {
         let mut part_str = part.as_str().to_string();
 
-        // Apply replacements to normalize prerelease identifiers
+        // Apply replacements to normalise prerelease identifiers
         part_str = match part_str.as_str() {
             "pre" => "c".to_string(),
             "preview" => "c".to_string(),

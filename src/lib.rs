@@ -101,122 +101,17 @@
 //! }
 //! ```
 //!
-//! # Prerelease Handling
-//!
-//! The checker is smart about prereleases:
-//!
-//! - If you're on a **stable version** (e.g., `1.0.0`), it only considers other stable versions
-//! - If you're on a **prerelease** (e.g., `1.0.0-alpha.1`), it considers all versions including other prereleases
-//!
-//! ```no_run
-//! use updates::UpdateChecker;
-//!
-//! let checker = UpdateChecker::new(false);
-//!
-//! // This will only check for stable releases
-//! checker.check("tokio", "1.0.0");
-//!
-//! // This will check for any version, including other prereleases
-//! checker.check("tokio", "1.0.0-rc1");
-//! ```
-//!
-//! # Caching Behavior
+//! # Caching Behaviour
 //!
 //! Update checks are cached in your system's temp directory for 1 hour:
 //!
 //! - **Cache location**: `{temp_dir}/updates_cache.bin`
 //! - **Cache duration**: 3600 seconds (1 hour)
-//! - **Cache format**: Compact binary format using postcard serialization
+//! - **Cache format**: Compact binary format using postcard serialisation
 //!
 //! The cache is automatically shared across multiple runs of your application,
 //! so users won't be spammed with update checks every time they run your tool.
 //!
-//! # Performance
-//!
-//! - **Cached checks**: Near-instant (< 1ms)
-//! - **Network checks**: Typically 100-500ms depending on your connection
-//! - **Timeout**: 2 seconds per request to crates.io
-//!
-//! The library is designed to be non-blocking and fast enough for CLI tools
-//! to check at startup without noticeable delay.
-//!
-//! # Error Handling
-//!
-//! All errors are handled gracefully - if the check fails (network issue,
-//! crate doesn't exist, etc.), the function simply returns `None`. Your
-//! application continues normally.
-//!
-//! ```no_run
-//! use updates::UpdateChecker;
-//!
-//! let checker = UpdateChecker::new(false);
-//!
-//! // If this fails (network down, crate doesn't exist, etc.)
-//! // it just returns None - no panic, no error message
-//! if let Some(update) = checker.check("nonexistent-crate", "1.0.0") {
-//!     println!("Update available: {}", update);
-//! }
-//! // Application continues normally
-//! ```
-//!
-//! # Examples
-//!
-//! ## CLI Tool Example
-//!
-//! ```no_run
-//! use updates::update_check;
-//!
-//! fn main() {
-//!     // Check for updates before running the tool
-//!     update_check(
-//!         env!("CARGO_PKG_NAME"),
-//!         env!("CARGO_PKG_VERSION"),
-//!         false // Use cache
-//!     );
-//!     
-//!     // Your CLI logic here
-//!     println!("Running my awesome CLI tool!");
-//! }
-//! ```
-//!
-//! ## Library with Optional Update Checks
-//!
-//! ```no_run
-//! use updates::UpdateChecker;
-//!
-//! pub struct MyLibrary {
-//!     check_updates: bool,
-//! }
-//!
-//! impl MyLibrary {
-//!     pub fn new(check_updates: bool) -> Self {
-//!         if check_updates {
-//!             let checker = UpdateChecker::new(false);
-//!             if let Some(update) = checker.check("my-library", "1.0.0") {
-//!                 eprintln!("Note: {}", update);
-//!             }
-//!         }
-//!         
-//!         MyLibrary { check_updates }
-//!     }
-//! }
-//! ```
-//!
-//! ## Build Script Example
-//!
-//! ```no_run
-//! // build.rs
-//! use updates::update_check;
-//!
-//! fn main() {
-//!     // Check during build time
-//!     update_check(
-//!         env!("CARGO_PKG_NAME"),
-//!         env!("CARGO_PKG_VERSION"),
-//!         true  // bypass cache in CI
-//!     );
-//! }
-//! ```
 
 mod core;
 
