@@ -1,7 +1,11 @@
 [package]
 name = "updates"
+description = "A Rust library that checks for crate updates."
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+readme = "README.md"
+authors = ["Ritchie Mwewa <hi@rly0nheart.com>"]
 
 [dependencies]
 chrono = { version = "0.4.42" , features = ["serde"] }
