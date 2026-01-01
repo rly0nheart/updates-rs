@@ -27,7 +27,6 @@
 //!         env!("CARGO_PKG_VERSION"),
 //!         false  // use cache
 //!     );
-//! .
 //!     println!("Hello, world!");
 //! }
 //! ```
@@ -47,15 +46,12 @@
 //! fn main() {
 //!     let checker = UpdateChecker::new(false);
 //!     
-//!     match checker.check("serde", "1.0.150") {
+//!     match checker.check("reqwest", "0.12.28") {
 //!         Some(update) => {
 //!             println!("Update available!");
 //!             println!("Current version: {}", update.running_version);
 //!             println!("Latest version: {}", update.available_version);
-//!             
-//!             if let Some(date) = update.release_date {
-//!                 println!("Released: {}", date);
-//!             }
+//!             println!("Released: {:?}", update.release_date);
 //!         }
 //!         None => {
 //!             println!("You're on the latest version!");
@@ -63,7 +59,7 @@
 //!     }
 //! }
 //! ```
-//! 
+//!
 //! ## Bypassing the Cache
 //!
 //! If you need to always get the latest information (e.g., in a CI environment),
