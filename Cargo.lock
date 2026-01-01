@@ -433,9 +433,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87"
 
 [[package]]
-name = "humanity"
+name = "humanly"
 version = "0.1.0"
-source = "git+https://codeberg.org/rly0nheart/humanity.git?rev=80cbed397e#80cbed397ecbbdc8a792235152a55f316bc13b88"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5d27546f4b7646280e9fbddd416f79e872ff65be324bde31e436a715894d5b2e"
 
 [[package]]
 name = "hyper"
@@ -1503,7 +1504,7 @@ name = "updates"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "humanity",
+ "humanly",
  "postcard",
  "regex",
  "reqwest",

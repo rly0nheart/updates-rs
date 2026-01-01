@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use chrono::{DateTime, Utc};
 use regex::Regex;
-use humanity::{HumanDuration, HumanTime};
+use humanly::{HumanDuration, HumanTime};
 
 /// Time in seconds before cache entries expire (1 hour).
 const CACHE_EXPIRE_TIME: u64 = 3600;

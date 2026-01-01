@@ -11,6 +11,6 @@ authors = ["Ritchie Mwewa <hi@rly0nheart.com>"]
 chrono = { version = "0.4.42" , features = ["serde"] }
 reqwest = { version = "0.13.1" , features = ["blocking", "json"] }
 serde = { version = "1.0.228", features = ["derive"] }
-humanity = { git = "https://codeberg.org/rly0nheart/humanity.git", rev = "80cbed397e" }
+humanly = "0.1.0"
 postcard = { version = "1.1.3", features = ["alloc"] }
 regex = "1.12.2"
