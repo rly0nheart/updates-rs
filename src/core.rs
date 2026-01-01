@@ -1,11 +1,11 @@
+use chrono::{DateTime, Utc};
+use humanly::{HumanDuration, HumanTime};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use chrono::{DateTime, Utc};
-use regex::Regex;
-use humanly::{HumanDuration, HumanTime};
 
 /// Time in seconds before cache entries expire (1 hour).
 const CACHE_EXPIRE_TIME: u64 = 3600;
@@ -174,8 +174,7 @@ impl UpdateChecker {
     /// let checker_no_cache = UpdateChecker::new(true);
     /// ```
     pub fn new(bypass_cache: bool) -> Self {
-        let cache_file = std::env::temp_dir()
-            .join("updates_cache.bin");
+        let cache_file = std::env::temp_dir().join("updates_cache.bin");
 
         let mut checker = UpdateChecker {
             bypass_cache,
@@ -191,7 +190,9 @@ impl UpdateChecker {
     fn load_from_permacache(&mut self) {
         if let Some(ref path) = self.cache_file {
             if let Ok(data) = fs::read(path) {
-                if let Ok(cache) = postcard::from_bytes::<HashMap<(String, String), CacheEntry>>(&data) {
+                if let Ok(cache) =
+                    postcard::from_bytes::<HashMap<(String, String), CacheEntry>>(&data)
+                {
                     if let Ok(mut locked_cache) = self.cache.lock() {
                         *locked_cache = cache;
                     }
@@ -312,12 +313,21 @@ struct CratesIoData {
 ///
 /// * `Ok(CratesIoData)` - The latest version information
 /// * `Err` - If the query fails or no suitable version is found
-fn crates_io(package: &str, include_prereleases: bool) -> Result<CratesIoData, Box<dyn std::error::Error>> {
+fn crates_io(
+    package: &str,
+    include_prereleases: bool,
+) -> Result<CratesIoData, Box<dyn std::error::Error>> {
     let url = format!("https://crates.io/api/v1/crates/{}", package);
     let response = reqwest::blocking::Client::new()
         .get(&url)
-        .header("User-Agent", "update-checker-rust/0.18.0")
-        .timeout(Duration::from_secs(2))
+        .header(
+            "User-Agent",
+            &format!(
+                "updates-rs/{} (+{})",
+                env!("CARGO_PKG_VERSION"),
+                env!("CARGO_PKG_REPOSITORY")
+            ),
+        )
         .send()?;
 
     if !response.status().is_success() {
@@ -327,10 +337,7 @@ fn crates_io(package: &str, include_prereleases: bool) -> Result<CratesIoData, B
     let data: CratesIoResponse = response.json()?;
 
     // Filter out yanked versions
-    let mut versions: Vec<&VersionInfo> = data.versions
-        .iter()
-        .filter(|v| !v.yanked)
-        .collect();
+    let mut versions: Vec<&VersionInfo> = data.versions.iter().filter(|v| !v.yanked).collect();
 
     if versions.is_empty() {
         return Err("No non-yanked versions found".into());
@@ -408,23 +415,21 @@ fn pretty_date(the_datetime: DateTime<Utc>) -> String {
 /// # Examples
 ///
 /// ```no_run
-/// use updates::update_check;
+/// use updates::check;
 ///
 /// fn main() {
 ///     // Check for updates at startup
-///     update_check("my-cli-tool", env!("CARGO_PKG_VERSION"), false);
+///     check("my-cli-tool", env!("CARGO_PKG_VERSION"), false);
 ///
 ///     // ... rest of your application
 /// }
 /// ```
 ///
 /// ```no_run
-/// use updates::update_check;
-///
 /// // Force a fresh check (bypassing cache)
-/// update_check("my-tool", "1.0.0", true);
+/// updates::check("my-tool", "1.0.0", true);
 /// ```
-pub fn update_check(crate_name: &str, crate_version: &str, bypass_cache: bool) {
+pub fn check(crate_name: &str, crate_version: &str, bypass_cache: bool) {
     let checker = UpdateChecker::new(bypass_cache);
     if let Some(result) = checker.check(crate_name, crate_version) {
         eprintln!("{}", result);

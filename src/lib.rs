@@ -16,7 +16,7 @@
 //!
 //! ## Basic
 //!
-//! The easiest way to use this crate is with the [`update_check`] function:
+//! The easiest way to use this crate is with the [`check`] function:
 //!
 //! ```no_run
 //!
@@ -27,8 +27,7 @@
 //!         env!("CARGO_PKG_VERSION"),
 //!         false  // use cache
 //!     );
-//!     
-//!     // Your application code here...
+//! .
 //!     println!("Hello, world!");
 //! }
 //! ```
@@ -64,40 +63,17 @@
 //!     }
 //! }
 //! ```
-//!
-//! ## Checking Multiple Crates
-//!
-//! ```no_run
-//! use updates::UpdateChecker;
-//!
-//! fn check_dependencies() {
-//!     let checker = UpdateChecker::new(false);
-//!     
-//!     let crates = vec![
-//!         ("serde", "1.0.150"),
-//!         ("tokio", "1.28.0"),
-//!         ("regex", "1.8.0"),
-//!     ];
-//!     
-//!     for (name, version) in crates {
-//!         if let Some(update) = checker.check(name, version) {
-//!             eprintln!("{}", update);
-//!         }
-//!     }
-//! }
-//! ```
-//!
+//! 
 //! ## Bypassing the Cache
 //!
 //! If you need to always get the latest information (e.g., in a CI environment),
 //! set `bypass_cache` to `true`:
 //!
 //! ```no_run
-//! use updates::update_check;
 //!
 //! fn main() {
 //!     // Always query crates.io, ignore cache
-//!     update_check("my-tool", "1.0.0", true);
+//!     updates::check("my-tool", "1.0.0", true);
 //! }
 //! ```
 //!
@@ -115,12 +91,12 @@
 
 mod core;
 
-pub use core::{UpdateChecker, UpdateResult, update_check};
+pub use core::{UpdateChecker, UpdateResult, check};
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{parse_version, standard_release};
     use super::*;
+    use crate::core::{parse_version, standard_release};
 
     #[test]
     fn test_standard_release() {
