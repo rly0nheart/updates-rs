@@ -44,7 +44,7 @@ For more control over the checking process, use [`UpdateChecker`] directly:
 use updates::UpdateChecker;
 
 fn main() {
-    let mut checker = UpdateChecker::new(false);
+    let checker = UpdateChecker::new(false);
     
     match checker.check("serde", "1.0.150") {
         Some(update) => {
