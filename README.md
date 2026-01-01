@@ -1,6 +1,7 @@
 A Rust library that checks for crate updates.
 
-**updates** only checks crates that are publicly listed on [crates.io](https://crates.io).
+> ![Note]
+> **updates-rs** only checks crates that are publicly listed on [crates.io](https://crates.io).
 
 ## Quick Start
 
