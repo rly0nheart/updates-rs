@@ -46,7 +46,7 @@
 //! use updates::UpdateChecker;
 //!
 //! fn main() {
-//!     let mut checker = UpdateChecker::new(false);
+//!     let checker = UpdateChecker::new(false);
 //!     
 //!     match checker.check("serde", "1.0.150") {
 //!         Some(update) => {
@@ -71,7 +71,7 @@
 //! use updates::UpdateChecker;
 //!
 //! fn check_dependencies() {
-//!     let mut checker = UpdateChecker::new(false);
+//!     let checker = UpdateChecker::new(false);
 //!     
 //!     let crates = vec![
 //!         ("serde", "1.0.150"),
@@ -191,7 +191,7 @@
 //! impl MyLibrary {
 //!     pub fn new(check_updates: bool) -> Self {
 //!         if check_updates {
-//!             let mut checker = UpdateChecker::new(false);
+//!             let checker = UpdateChecker::new(false);
 //!             if let Some(update) = checker.check("my-library", "1.0.0") {
 //!                 eprintln!("Note: {}", update);
 //!             }
