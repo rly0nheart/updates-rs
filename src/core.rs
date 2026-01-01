@@ -328,6 +328,7 @@ fn crates_io(
                 env!("CARGO_PKG_REPOSITORY")
             ),
         )
+        .timeout(Duration::from_secs(3))
         .send()?;
 
     if !response.status().is_success() {
