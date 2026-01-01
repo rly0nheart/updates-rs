@@ -83,7 +83,7 @@ Update checks are cached in your system's temp directory for 1 hour:
 
 - **Cache location**: `{temp_dir}/updates_cache.bin`
 - **Cache duration**: 3600 seconds (1 hour)
-- **Cache format**: Compact binary format using postcard serialization
+- **Cache format**: Compact binary format using postcard serialisation
 
 The cache is automatically shared across multiple runs of your application,
 so users won't be spammed with update checks every time they run your program.
