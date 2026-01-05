@@ -174,7 +174,7 @@ impl UpdateChecker {
     /// let checker_no_cache = UpdateChecker::new(true);
     /// ```
     pub fn new(bypass_cache: bool) -> Self {
-        let cache_file = std::env::temp_dir().join("updates_cache.bin");
+        let cache_file = std::env::temp_dir().join("updates_cache.json");
 
         let mut checker = UpdateChecker {
             bypass_cache,
@@ -189,10 +189,8 @@ impl UpdateChecker {
     /// Loads cached data from disk into memory.
     fn load_from_permacache(&mut self) {
         if let Some(ref path) = self.cache_file {
-            if let Ok(data) = fs::read(path) {
-                if let Ok(cache) =
-                    postcard::from_bytes::<HashMap<(String, String), CacheEntry>>(&data)
-                {
+            if let Ok(data) = fs::read_to_string(path) {
+                if let Ok(cache) = serde_json::from_str::<HashMap<(String, String), CacheEntry>>(&data) {
                     if let Ok(mut locked_cache) = self.cache.lock() {
                         *locked_cache = cache;
                     }
@@ -205,7 +203,7 @@ impl UpdateChecker {
     fn save_to_permacache(&self) {
         if let Some(ref path) = self.cache_file {
             if let Ok(locked_cache) = self.cache.lock() {
-                if let Ok(data) = postcard::to_allocvec(&*locked_cache) {
+                if let Ok(data) = serde_json::to_string(&*locked_cache) {
                     let _ = fs::write(path, data);
                 }
             }
@@ -318,7 +316,14 @@ fn crates_io(
     include_prereleases: bool,
 ) -> Result<CratesIoData, Box<dyn std::error::Error>> {
     let url = format!("https://crates.io/api/v1/crates/{}", package);
-    let response = reqwest::blocking::Client::new()
+
+    let config = ureq::Agent::config_builder()
+        .timeout_global(Some(Duration::from_secs(3)))
+        .build();
+
+    let agent: ureq::Agent = config.into();
+
+    let data: CratesIoResponse = agent
         .get(&url)
         .header(
             "User-Agent",
@@ -328,24 +333,19 @@ fn crates_io(
                 env!("CARGO_PKG_REPOSITORY")
             ),
         )
-        .timeout(Duration::from_secs(3))
-        .send()?;
-
-    if !response.status().is_success() {
-        return Err(format!("HTTP error: {}", response.status()).into());
-    }
-
-    let data: CratesIoResponse = response.json()?;
+        .call()?
+        .body_mut()
+        .read_json()?;
 
     // Filter out yanked versions
-    let mut versions: Vec<&VersionInfo> = data.versions.iter().filter(|v| !v.yanked).collect();
+    let mut versions: Vec<&VersionInfo> = data.versions.iter().filter(|version| !version.yanked).collect();
 
     if versions.is_empty() {
         return Err("No non-yanked versions found".into());
     }
 
     // Sort by version (newest first)
-    versions.sort_by(|a, b| parse_version(&b.num).cmp(&parse_version(&a.num)));
+    versions.sort_by(|version_a, version_b| parse_version(&version_b.num).cmp(&parse_version(&version_a.num)));
 
     // Find the best version based on prerelease preference
     let version_info = versions
@@ -444,18 +444,18 @@ pub fn check(crate_name: &str, crate_version: &str, bypass_cache: bool) {
 ///
 /// # Arguments
 ///
-/// * `s` - The version string to parse
+/// * `version_string` - The version string to parse
 ///
 /// # Returns
 ///
 /// A vector of strings that can be compared lexicographically to determine
 /// version ordering.
-pub(crate) fn parse_version(s: &str) -> Vec<String> {
+pub(crate) fn parse_version(version_string: &str) -> Vec<String> {
     let component_re = Regex::new(r"(\d+|[a-z]+|\.|-)").unwrap();
-    let s_lower = s.to_lowercase();
+    let version_string_lower = version_string.to_lowercase();
     let mut parts = Vec::new();
 
-    for part in component_re.find_iter(&s_lower) {
+    for part in component_re.find_iter(&version_string_lower) {
         let mut part_str = part.as_str().to_string();
 
         // Apply replacements to normalise prerelease identifiers
