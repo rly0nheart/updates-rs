@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use humanly::{HumanDuration, HumanTime};
+use human::HumanRelative;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -390,17 +390,11 @@ fn pretty_date(the_datetime: DateTime<Utc>) -> String {
         return the_datetime.format("%x %X").to_string();
     }
 
-    // If negative (future date), use HumanTime for future duration
-    if diff.num_days() < 0 {
-        let future_duration = Duration::from_secs(diff.num_seconds().abs() as u64);
-        return format!("in {}", HumanTime::from(future_duration).to_string());
-    }
-
     // For recent past dates, use HumanDuration
     let duration = Duration::from_secs(diff.num_seconds().max(0) as u64);
     let past_time = SystemTime::now() - duration;
 
-    HumanDuration::from(Some(past_time)).to_string()
+    HumanRelative::new(past_time).to_string()
 }
 
 /// Convenience function that checks for updates and prints to stderr if one is available.

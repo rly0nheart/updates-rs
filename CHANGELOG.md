@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Security
 
+## [0.2.2] - 2026-07-15
+
+### Changed
+
+- human units dependency from _humanly_ to _libhuman_
+
 ## [0.2.1] - 2026-01-27
 
 ### Added
