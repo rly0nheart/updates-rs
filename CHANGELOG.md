@@ -19,6 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Security
 
+## [0.2.3] - 2026-08-22
+
+### Changed
+
+- Version comparison from a hand-rolled parser to _semver_
+- Latest version now read from the crates.io API instead of sorted client-side
+
+### Removed
+
+- _regex_ and _libhuman_ dependencies, and chrono's default features
+
+### Fixed
+
+- On-disk cache never saved, as serde_json rejects non-string map keys
+
 ## [0.2.2] - 2026-07-15
 
 ### Changed

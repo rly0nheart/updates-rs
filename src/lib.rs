@@ -1,89 +1,46 @@
-//! # updates
+//! # update-checker
 //!
 //! A Rust library that checks for crate updates.
 //!
-//! **updates** only checks crates that are publicly listed on [crates.io](https://crates.io).
+//! **update-checker** only checks crates that are publicly listed on
+//! [crates.io](https://crates.io).
 //!
 //! # Quick Start
 //!
-//! Run the following command to add updates to your project's dependencies:
-//!
 //! ```shell
-//! cargo add updates
+//! cargo add update-checker
 //! ```
 //!
 //! # Usage
 //!
-//! ## Basic
-//!
 //! The easiest way to use this crate is with the [`check`] function:
 //!
 //! ```no_run
-//!
 //! fn main() {
 //!     // Check for updates at startup
-//!     updates::check(
+//!     update_checker::check(
 //!         env!("CARGO_PKG_NAME"),
 //!         env!("CARGO_PKG_VERSION"),
-//!         false  // use cache
+//!         false, // use cache
 //!     );
+//!
 //!     println!("Hello, world!");
 //! }
 //! ```
 //!
-//! If an update is available, it will print to stderr:
+//! If an update is available, it prints to stderr:
+//!
 //! ```text
 //! Version 1.0.0 of my-tool is outdated. Version 1.2.0 was released 3 days ago.
 //! ```
 //!
-//! ## Advanced
-//!
-//! For more control over the checking process, use [`UpdateChecker`] directly:
-//!
-//! ```no_run
-//! use updates::UpdateChecker;
-//!
-//! fn main() {
-//!     let checker = UpdateChecker::new(false);
-//!     
-//!     match checker.check("reqwest", "0.12.28") {
-//!         Some(update) => {
-//!             println!("Update available!");
-//!             println!("Current version: {}", update.running_version);
-//!             println!("Latest version: {}", update.available_version);
-//!             println!("Released: {:?}", update.release_date);
-//!         }
-//!         None => {
-//!             println!("You're on the latest version!");
-//!         }
-//!     }
-//! }
-//! ```
-//!
-//! ## Bypassing the Cache
-//!
-//! If you need to always get the latest information (e.g., in a CI environment),
-//! set `bypass_cache` to `true`:
-//!
-//! ```no_run
-//!
-//! fn main() {
-//!     // Always query crates.io, ignore cache
-//!     updates::check("my-tool", "1.0.0", true);
-//! }
-//! ```
+//! For more control, use [`UpdateChecker`] directly. Pass `bypass_cache = true` to
+//! always query crates.io, e.g. in CI.
 //!
 //! # Caching Behaviour
 //!
-//! Update checks are cached in your system's temp directory for 1 hour:
-//!
-//! - **Cache location**: `{temp_dir}/updates_cache.bin`
-//! - **Cache duration**: 3600 seconds (1 hour)
-//! - **Cache format**: Compact binary format using postcard serialisation
-//!
-//! The cache is automatically shared across multiple runs of your application,
-//! so users won't be spammed with update checks every time they run your tool.
-//!
+//! Checks are cached in `{temp_dir}/updates_cache.json` for 1 hour and shared across
+//! runs, so users are not spammed with update checks every time they run your tool.
 
 mod core;
 
@@ -92,7 +49,7 @@ pub use core::{UpdateChecker, UpdateResult, check};
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{parse_version, standard_release};
+    use crate::core::standard_release;
 
     #[test]
     fn test_standard_release() {
@@ -101,22 +58,6 @@ mod tests {
         assert!(!standard_release("1.0.0-alpha"));
         assert!(!standard_release("2.4.1-rc1"));
         assert!(!standard_release("1.1.1-beta.1"));
-    }
-
-    #[test]
-    fn test_version_parsing() {
-        assert!(parse_version("2.4.1") > parse_version("2.4.0"));
-        assert!(parse_version("2.4.0") > parse_version("2.4.0-alpha"));
-        assert!(parse_version("2.4.1") > parse_version("2.4.0"));
-        assert!(parse_version("1.1.1") > parse_version("1.1.0"));
-    }
-
-    #[test]
-    fn test_prerelease_ordering() {
-        assert!(parse_version("1.0.0") > parse_version("1.0.0-rc1"));
-        assert!(parse_version("1.0.0-rc2") > parse_version("1.0.0-rc1"));
-        assert!(parse_version("1.0.0-beta") < parse_version("1.0.0-rc"));
-        assert!(parse_version("1.0.0-alpha") < parse_version("1.0.0-beta"));
     }
 
     #[test]

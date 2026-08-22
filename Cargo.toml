@@ -1,18 +1,17 @@
 [package]
-name = "updates"
+name = "update-checker"
 description = "A Rust library that checks for crate updates."
-version = "0.2.2"
+version = "0.2.3"
 edition = "2024"
 license = "MIT"
 readme = "README.md"
-repository = "https://codeberg.org/rly0nheart/updates-rs"
+repository = "https://github.com/rly0nheart/update-checker"
 authors = ["Ritchie Mwewa <hi@rly0nheart.com>"]
 keywords = ["update-checker", "updater", "updates"]
 
 [dependencies]
-chrono = { version = "0.4.42" , features = ["serde"] }
-libhuman = "0.2"
-regex = "1.12.2"
+chrono = { version = "0.4.42", default-features = false, features = ["now", "std", "serde"] }
+semver = "1.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.148"
-ureq = { version = "3.1.4", features = ["json"]}
+ureq = { version = "3.1.4", features = ["json"] }
